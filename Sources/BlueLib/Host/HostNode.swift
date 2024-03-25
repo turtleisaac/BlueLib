@@ -37,6 +37,7 @@ public class HostNode {
     let deviceConnectedAction: () -> Void
     let communicationReadyAction: () -> Void
     let peripheralReadAction: (_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic, _ error: Error?) -> Void
+    var peripheralDisconnectedAction: (_ peripheral: CBPeripheral) -> Void
     
     let serviceUUID: CBUUID
     let characteristicUUIDs: [CBUUID]
@@ -50,6 +51,7 @@ public class HostNode {
         self.communicationReadyAction = communicationReadyAction
         self.peripheralReadAction = peripheralReadAction
         self.peripheralDiscoveredAction = peripheralDiscoveredAction
+        self.peripheralDisconnectedAction = {_ in }
         peripheralData = [CBPeripheral : PeripheralInfo]()
         
         centralDelegate = CentralManagerDelegate(hostNode: self)
@@ -57,12 +59,12 @@ public class HostNode {
         centralManager = CBCentralManager(delegate: centralDelegate, queue: nil)
     }
     
-    func startScan() {
+    public func startScan() {
         print("started scan")
         centralManager.scanForPeripherals(withServices: [serviceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
     }
     
-    func stopScan() {
+    public func stopScan() {
         centralManager.stopScan()
     }
     
@@ -74,16 +76,17 @@ public class HostNode {
         centralManager.cancelPeripheralConnection(peripheral)
         connectedPeripherals.removeAll(where: {$0 == peripheral})
         discoveredPeripherals.removeAll(where: {$0 == peripheral})
+        peripheralDisconnectedAction(peripheral)
     }
     
-    func disconnectAll() {
+    public func disconnectAll() {
         for peripheral in connectedPeripherals {
             disconnect(peripheral: peripheral)
         }
         connectedPeripherals.removeAll()
     }
     
-    func disable() {
+    public func disable() {
         centralManager.stopScan()
         disconnectAll()
         discoveredPeripherals.removeAll()

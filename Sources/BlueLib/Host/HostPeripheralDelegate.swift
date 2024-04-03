@@ -8,7 +8,7 @@
 import Foundation
 import CoreBluetooth
 
-class PeripheralDelegate: NSObject, CBPeripheralDelegate {
+class HostPeripheralDelegate: NSObject, CBPeripheralDelegate {
     
     let hostNode:HostNode
     

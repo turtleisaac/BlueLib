@@ -22,12 +22,12 @@ class PeripheralNode {
     let serviceUUID: CBUUID
     let characteristicUUIDs: [CBUUID]
     
-    init(serviceUUID: CBUUID, characteristicUUIDs: [CBUUID], dataReceivedAction: @escaping (_ peripheral: CBPeripheralManager, _ requests: [CBATTRequest]) -> Void)
+    init(serviceUUID: CBUUID, characteristicUUIDs: [CBUUID], delegate: PeripheralNodeDelegate)
     {
         self.serviceUUID = serviceUUID
         self.characteristicUUIDs = characteristicUUIDs
         
-        self.dataReceivedAction = dataReceivedAction
+        self.dataReceivedAction = delegate.peripheralReceivedDataFromHost
         
         peripheralManagerDelegate = PeripheralManagerDelegate(peripheralNode: self)
         peripheralManager = CBPeripheralManager(delegate: peripheralManagerDelegate, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])

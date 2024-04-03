@@ -13,15 +13,13 @@ public class BluetoothNode {
     let peripheralNode: PeripheralNode
     
     let delegate:BluetoothNodeDelegate
-    let home:BluetoothHomeDelegate
     
-    public init(delegate: BluetoothNodeDelegate, home: BluetoothHomeDelegate, serviceUUID: CBUUID, characteristicUUIDs: [CBUUID])
+    public init(delegate: BluetoothNodeDelegate, serviceUUID: CBUUID, characteristicUUIDs: [CBUUID])
     {
         self.delegate = delegate
-        self.home = home
         
-        hostNode = HostNode(serviceUUID: serviceUUID, characteristicUUIDs: characteristicUUIDs, peripheralDiscoveredAction: home.peripheralDiscovered, deviceConnectedAction: delegate.deviceConnectedToHost, communicationReadyAction: delegate.hostReadyToCommunicate, peripheralReadAction: delegate.hostReceivedDataFromPeripheral(_:didUpdateValueFor:error:))
+        hostNode = HostNode(serviceUUID: serviceUUID, characteristicUUIDs: characteristicUUIDs, delegate: delegate)
         
-        peripheralNode = PeripheralNode(serviceUUID: serviceUUID, characteristicUUIDs: characteristicUUIDs, dataReceivedAction: delegate.peripheralReceivedDataFromHost(_:didReceiveWrite:))
+        peripheralNode = PeripheralNode(serviceUUID: serviceUUID, characteristicUUIDs: characteristicUUIDs, delegate: delegate)
     }
 }

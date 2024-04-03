@@ -42,20 +42,21 @@ public class HostNode {
     let serviceUUID: CBUUID
     let characteristicUUIDs: [CBUUID]
     
-    public init(serviceUUID: CBUUID, characteristicUUIDs: [CBUUID], peripheralDiscoveredAction: @escaping () -> Void, deviceConnectedAction: @escaping () -> Void, communicationReadyAction: @escaping () -> Void, peripheralReadAction: @escaping (_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic, _ error: Error?) -> Void)
+    public init(serviceUUID: CBUUID, characteristicUUIDs: [CBUUID], delegate: HostNodeDelegate)
     {
         self.serviceUUID = serviceUUID
         self.characteristicUUIDs = characteristicUUIDs
         
-        self.deviceConnectedAction = deviceConnectedAction
-        self.communicationReadyAction = communicationReadyAction
-        self.peripheralReadAction = peripheralReadAction
-        self.peripheralDiscoveredAction = peripheralDiscoveredAction
-        self.peripheralDisconnectedAction = {_ in }
+        self.peripheralDiscoveredAction = delegate.peripheralDiscovered
+        self.deviceConnectedAction = delegate.deviceConnectedToHost
+        self.communicationReadyAction = delegate.hostReadyToCommunicate
+        self.peripheralReadAction = delegate.hostReceivedDataFromPeripheral
+        self.peripheralDisconnectedAction = delegate.peripheralDisconnectedFromHost
+        
         peripheralData = [CBPeripheral : PeripheralInfo]()
         
         centralDelegate = CentralManagerDelegate(hostNode: self)
-        peripheralDelegate = PeripheralDelegate(hostNode: self)
+        peripheralDelegate = HostPeripheralDelegate(hostNode: self)
         centralManager = CBCentralManager(delegate: centralDelegate, queue: nil)
     }
     
